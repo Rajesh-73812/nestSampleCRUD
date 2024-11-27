@@ -5,6 +5,6 @@ import { WinstonLoggerService } from './logger.service';
 
 @Module({
   providers: [WinstonLoggerService],
-  exports: [WinstonLoggerService],  // Export service so it can be injected in other modules
+  exports: [WinstonLoggerService],  
 })
 export class LoggerModule {}

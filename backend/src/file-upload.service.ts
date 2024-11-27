@@ -9,41 +9,49 @@ import * as multer from 'multer';
 export class UploadFileService {
   getFileInterceptor(fieldName: string) {
     return FileInterceptor(fieldName, {
-      storage: multer.memoryStorage(), // Use in-memory storage
+      storage: multer.memoryStorage(), 
       fileFilter: (req, file, cb) => {
         if (!file.mimetype.match(/\/(jpg|jpeg|png|gif)$/)) {
-          cb(new BadRequestException('Only image files are allowed!'), false);
+            console.error('Unsupported file type:', file.mimetype);
+            cb(new BadRequestException('Only image files are allowed!'), false);
         } else {
-          cb(null, true);
+            cb(null, true);
         }
-      },
+      },    
     });
   }
 
   async validateAndProcessFile(file?: Express.Multer.File): Promise<string> {
     if (!file) {
-      throw new BadRequestException('File is required.');
+        throw new BadRequestException('File is required.');
     }
-  
-    // Step 1: Validate file size (optional)
-    if (file.size > 2 * 1024 * 1024) { // 2MB limit
-      throw new BadRequestException('File size exceeds 2MB.');
+
+    if (file.size > 2 * 1024 * 1024) {
+        throw new BadRequestException('File size exceeds 2MB.');
     }
-  
-    // Step 2: Process the file with Sharp and save it
+
     const filename = `${path.parse(file.originalname).name}-${Date.now()}.webp`;
-    const uploadPath = path.join(__dirname, '..', 'uploads', filename);
-  
-    try {
-     
-      await sharp(file.buffer)
-        .webp({ quality: 80 })
-        .toFile(uploadPath);
-    } catch (error) {
-      throw new BadRequestException('Error processing image.');
+    const uploadPath = path.join(__dirname, '..', 'uploads');
+    const fullFilePath = path.join(uploadPath, filename);
+
+    if (!fs.existsSync(uploadPath)) {
+        fs.mkdirSync(uploadPath, { recursive: true });
+        // console.log('Uploads directory created:', uploadPath);
     }
-  
-    return filename;
-  }
+
+    try {
+        // console.log('Processing image...');
+        await sharp(file.buffer)
+            .webp({ quality: 80 })
+            .toFile(fullFilePath);
+        // console.log('Image processed successfully:', fullFilePath);
+    } catch (error) {
+        console.error('Error while processing image:', error);
+        throw new BadRequestException('Error processing image.');
+    }
+
+    return filename; 
+}
+
   
 }

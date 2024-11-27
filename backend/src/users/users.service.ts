@@ -21,10 +21,8 @@ export class UsersService {
       throw new BadRequestException('Profile picture is required.');
     }
   
-    // Save the user (with the profile filename)
     const savedUser = await this.usersRepository.save(user);
     
-    // Optionally, you can save the user data to Excel (this part seems fine)
     await this.saveToExcel(savedUser);
     this.logger.log('Creating a new user and inserted into excel sheet');
     return savedUser;
@@ -54,14 +52,13 @@ export class UsersService {
     let sheet;
 
     if (fs.existsSync(filePath)) {
-      // If the file exists, read it
+      
       await workbook.xlsx.readFile(filePath);
       sheet = workbook.getWorksheet('Users');
       if (!sheet) {
         sheet = this.createWorksheet(workbook);
       }
     } else {
-      // Create new worksheet if file doesn't exist
       sheet = this.createWorksheet(workbook);
     }
 

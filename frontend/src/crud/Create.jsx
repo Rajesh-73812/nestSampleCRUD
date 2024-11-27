@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 
 const Create = () => {
     const navigate=useNavigate()
-    const [user, setUser ] = useState({ name: "", email: "" });
+    const [user, setUser ] = useState({ name: "", email: "",profile:null });
 
     // handle submit
     const handlesubmit = async (e) => {
@@ -27,11 +27,19 @@ const Create = () => {
             console.log('Google Sheets Response:', googleResult);
             alert(googleResult);
     
-            // Send data to your backend
-            const dbResponse = await axios.post("http://localhost:3000/users", user);
-            console.log('DB Response:', dbResponse);
+            // Send data to your backend (with file upload)
+            const formData = new FormData();
+            formData.append('name', user.name);
+            formData.append('email', user.email);
+            formData.append('profile', user.profile);
+
+            const response = await axios.post("http://localhost:3000/users", formData, {
+                headers: { 'Content-Type': 'multipart/form-data' },
+            });
+
+            console.log('DB Response:', response);
     
-            if (dbResponse.status === 201) {
+            if (response.status === 201) {
                 navigate('/dashboard');
             }
         } catch (error) {
@@ -39,12 +47,17 @@ const Create = () => {
         }
     };
     
+    
 
     const handleChange = (e) => {
         const { name, value } = e.target;
         setUser ((prevstate) => ({ ...prevstate, [name]: value }));
     };
 
+    const handleFileChange = (e) => {
+        const file = e.target.files[0];
+        setUser((prevState) => ({ ...prevState, profile: file }));
+    };
     return (
         <div>
             <div>
@@ -59,6 +72,10 @@ const Create = () => {
                     <div>
                         <label>Email:</label>
                         <input type="text" name="email" onChange={handleChange} />
+                    </div>
+                    <div>
+                        <label htmlFor="profile">Profile</label>
+                        <input type="file" name='profile' onChange={handleFileChange}/>
                     </div>
                     <button type='submit'>Submit</button>
                 </form>

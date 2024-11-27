@@ -1,16 +1,4 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Param,
-  Put,
-  Delete,
-  UsePipes,
-  ValidationPipe,
-  UploadedFile,
-  UseInterceptors,
-} from '@nestjs/common';
+import {  Controller,  Get,  Post,  Body,  Param,  Put,  Delete,  UsePipes,  ValidationPipe,  UploadedFile,  UseInterceptors,} from '@nestjs/common';
 import { UsersService } from './users.service';
 import { User } from './user.entity';
 import { ApiOperation } from '@nestjs/swagger';
@@ -32,9 +20,10 @@ export class UsersController {
     new UploadFileService().getFileInterceptor('profile'), 
   )
   async create(@Body() user: User, @UploadedFile() file: Express.Multer.File) {
+    // console.log(file)
     this.logger.log(`Received request to create user: ${user.name}`);
     const filename = await this.uploadFileService.validateAndProcessFile(file);
-    // console.log(filename)
+    // console.log(filename,"26")
     user.profile = filename;
     return this.usersService.create(user);
   }

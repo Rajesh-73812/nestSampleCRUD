@@ -4,6 +4,9 @@ import { CorsOptions } from '@nestjs/common/interfaces/external/cors-options.int
 import { SwaggerModule,DocumentBuilder } from '@nestjs/swagger';
 // import { LoggingInterceptor } from './logging/logging.interceptor';
 import { AuthInterceptor } from './auth/auth.interceptor';
+import * as dotenv from 'dotenv';
+dotenv.config();
+
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
